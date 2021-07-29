@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import logo from 'assets/img/ninja.png';
+import hasRole from 'utils/validateRole';
 
 class Sidebar extends Component {
   constructor(props) {
@@ -68,16 +69,18 @@ class Sidebar extends Component {
               if (
                 !prop.redirect &&
                 prop.menu &&
-                this.props.keycloak.hasRealmRole(prop.role)
+                hasRole(prop.role, this.props.keycloak.realmAccess.roles)
               ) {
                 if (
                   !!prop.submenu &&
-                  this.props.keycloak.hasRealmRole(prop.role)
+                  hasRole(prop.role, this.props.keycloak.realmAccess.roles)
                 ) {
                   const valuex = this.state.submenu.get(prop.path);
 
                   const subitems = prop.submenu.map((submenu, index) => {
-                    if (this.props.keycloak.hasRealmRole(submenu.role)) {
+                    if (
+                      hasRole(prop.role, this.props.keycloak.realmAccess.roles)
+                    ) {
                       return (
                         <li
                           key={index}

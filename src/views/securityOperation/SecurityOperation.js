@@ -21,6 +21,7 @@ import * as selectors from 'stores/securityOperation/reducer';
 import EditSecurityOperation from 'views/securityOperation/editSecurityOperation';
 import security_policies from 'policies.js';
 import SimpleModal from 'components/Modal/SimpleModal.jsx';
+import hasRole from 'utils/validateRole';
 
 class SecurityOperation extends Component {
   state = {
@@ -74,8 +75,14 @@ class SecurityOperation extends Component {
     let columns = [];
     columns.push(col.addCol('name', 'Role', '30%'));
     columns.push(col.addColBtn('policies', 'Policies', this.policies, '50%'));
-    columns.push(col.addEdit(this.onEdit));
-    columns.push(col.addDelete(this.onDelete));
+    const permissionToWrite = hasRole(
+      ['tenkai-admin'],
+      this.props.keycloak.realmAccess.roles
+    );
+    if (permissionToWrite) {
+      columns.push(col.addEdit(this.onEdit));
+      columns.push(col.addDelete(this.onDelete));
+    }
 
     const data = this.props.securityOperation.list.filter(
       d =>
@@ -84,16 +91,19 @@ class SecurityOperation extends Component {
 
     return (
       <div className="content">
-        <SimpleModal
-          showConfirmDeleteModal={this.state.showConfirmDeleteModal}
-          handleConfirmDeleteModalClose={() =>
-            this.setState({ showConfirmDeleteModal: false, itemToDelete: {} })
-          }
-          title="Confirm"
-          subTitle="Delete"
-          message="Are you sure you want to delete this Role?"
-          handleConfirmDelete={this.handleConfirmDelete.bind(this)}
-        ></SimpleModal>
+        {permissionToWrite ? (
+          <SimpleModal
+            showConfirmDeleteModal={this.state.showConfirmDeleteModal}
+            handleConfirmDeleteModalClose={() =>
+              this.setState({ showConfirmDeleteModal: false, itemToDelete: {} })
+            }
+            title="Confirm"
+            subTitle="Delete"
+            message="Are you sure you want to delete this Role?"
+            handleConfirmDelete={this.handleConfirmDelete.bind(this)}
+          ></SimpleModal>
+        ) : null}
+
         <Container fluid>
           <Row>
             <Col md={12}>
@@ -112,6 +122,7 @@ class SecurityOperation extends Component {
                             editMode: false
                           })
                         }
+                        disabled={!permissionToWrite}
                       >
                         New Role
                       </CButton>
@@ -124,7 +135,7 @@ class SecurityOperation extends Component {
 
           <Row>
             <Col md={12}>
-              {this.state.showInsertUpdateForm ? (
+              {this.state.showInsertUpdateForm && permissionToWrite ? (
                 <EditSecurityOperation
                   editMode={this.state.editMode}
                   editItem={this.state.editItem}

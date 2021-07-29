@@ -233,7 +233,7 @@ const routes = [
     component: null,
     layout: '/admin',
     menu: true,
-    role: 'tenkai-admin',
+    role: ['tenkai-admin', 'tenkai-manager'],
     submenu: [
       {
         path: '/admin',

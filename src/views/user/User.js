@@ -18,6 +18,7 @@ import CButton from 'components/CustomButton/CustomButton.jsx';
 import UserForm from 'views/user/components/EditUser.js';
 import EditRole from 'views/user/EditRole.js';
 import SimpleModal from 'components/Modal/SimpleModal.jsx';
+import hasRole from 'utils/validateRole';
 
 import * as userActions from 'stores/user/actions';
 import * as userSelectors from 'stores/user/reducer';
@@ -116,7 +117,13 @@ class User extends Component {
     columns.push(
       col.addColBtn('handleRole', 'Handle Role', this.btnHandleRole)
     );
-    columns.push(col.addDelete(this.onDelete));
+    const permissionToWrite = hasRole(
+      ['tenkai-admin'],
+      this.props.keycloak.realmAccess.roles
+    );
+    if (permissionToWrite) {
+      columns.push(col.addDelete(this.onDelete));
+    }
 
     const data = this.props.users
       .filter(

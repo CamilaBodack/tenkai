@@ -18,6 +18,7 @@ import TENKAI_API_URL from 'env.js';
 import NotificationContainer from 'components/Notification/NotificationContainer';
 import Spinner from 'components/Spinner/Spinner';
 import * as utils from 'utils/sort';
+import hasRole from 'utils/validateRole';
 import * as actions from 'stores/master/actions';
 import * as selectors from 'stores/master/reducer';
 
@@ -238,7 +239,7 @@ class Admin extends Component {
 
   getRoutes = localRoutes => {
     return localRoutes.map((prop, key) => {
-      let auth = this.state.keycloak.hasRealmRole(prop.role);
+      let auth = hasRole(prop.role, this.state.keycloak.realmAccess.roles);
       if (prop.layout === '/admin' && auth) {
         if (prop.submenu !== undefined) {
           return prop.submenu.map((it, index) => {
