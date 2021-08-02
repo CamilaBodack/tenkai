@@ -207,6 +207,7 @@ class User extends Component {
                       editMode: false
                     })
                   }
+                  roles={this.props.keycloak.realmAccess.roles}
                 />
               ) : null}
             </Col>

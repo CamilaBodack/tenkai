@@ -5,6 +5,7 @@ import Select from 'react-select';
 import * as services from 'services/securityOperation';
 import * as roleServices from 'services/roles';
 import * as userServices from 'services/users';
+import * as servicesEnvironments from 'services/environments';
 
 export class EditRole extends Component {
   state = {
@@ -20,10 +21,19 @@ export class EditRole extends Component {
     const allRoles = await services.load();
     const user = await userServices.getUser(this.props.editItem.ID);
 
-    let envs = user.data.Environments.map(e => ({
-      label: e.name,
-      value: e.ID
-    }));
+    let allEnvs = await servicesEnvironments.allEnvironments();
+
+    let envs = user.data.Environments.map(e => {
+      for (const item of allEnvs.data.Envs) {
+        if (item.ID === e.ID) {
+          return {
+            label: e.name,
+            value: e.ID
+          };
+        }
+      }
+      return '';
+    });
 
     let roles = [];
 
@@ -41,7 +51,12 @@ export class EditRole extends Component {
 
     const email = user.data.email;
     const userId = user.data.ID;
-    this.setState({ envs: envs, roles: roles, email: email, userId: userId });
+    this.setState({
+      envs: envs.filter(e => e !== ''),
+      roles: roles,
+      email: email,
+      userId: userId
+    });
   }
 
   async defineCurrentPolicy(environmentId) {
